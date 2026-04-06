@@ -14,6 +14,7 @@ import co.edu.poli.contexto2.model.Registro;
  * por lo que solo es accesible dentro del paquete {@code servicios}.</p>
  *
  * @author florez0309
+ * @since 2026
  * @version 1.0
  */
 abstract class Deshidratadoespecial extends Deshidratado {

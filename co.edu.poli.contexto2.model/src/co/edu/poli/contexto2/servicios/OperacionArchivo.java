@@ -18,6 +18,7 @@ import co.edu.poli.contexto2.model.Alimento;
  * </pre>
  *
  * @author florez0309
+ * @since 2026
  * @version 1.0
  */
 public interface OperacionArchivo {

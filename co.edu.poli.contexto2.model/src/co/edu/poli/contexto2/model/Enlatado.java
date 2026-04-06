@@ -10,6 +10,7 @@ package co.edu.poli.contexto2.model;
  * los envases de acero ofrecen mayor valor nutricional que otros materiales.</p>
  *
  * @author florez0309
+ * @since 2026
  * @version 1.0
  */
 public final class Enlatado extends Alimento {

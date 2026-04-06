@@ -7,6 +7,7 @@ package co.edu.poli.contexto2.model;
  * fecha, lugar, tipo de productos extraídos y nave involucrada.</p>
  *
  * @author florez0309
+ * @since 2026
  * @version 1.0
  */
 public class Registro {

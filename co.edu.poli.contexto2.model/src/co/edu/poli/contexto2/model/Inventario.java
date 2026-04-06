@@ -8,6 +8,7 @@ package co.edu.poli.contexto2.model;
  * registrando cuántos inventarios han sido creados en total.</p>
  *
  * @author florez0309
+ * @since 2026
  * @version 1.0
  */
 public class Inventario {

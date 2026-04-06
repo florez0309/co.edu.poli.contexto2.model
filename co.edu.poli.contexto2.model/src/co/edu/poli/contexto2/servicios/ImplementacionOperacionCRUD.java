@@ -23,6 +23,7 @@ import java.io.*;
  * <p>Donde {@code TIPO} es {@code DESHIDRATADO} o {@code ENLATADO}.</p>
  *
  * @author florez0309
+ * @since 2026
  * @version 1.0
  */
 public class ImplementacionOperacionCRUD implements OperacionCRUD, OperacionArchivo {

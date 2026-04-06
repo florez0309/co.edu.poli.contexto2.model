@@ -12,6 +12,7 @@ package co.edu.poli.contexto2.model;
  * {@code obtenerCategoria()} que no puede ser sobreescrito.</p>
  *
  * @author florez0309
+ * @since 2026
  * @version 1.0
  */
 public abstract class Alimento {

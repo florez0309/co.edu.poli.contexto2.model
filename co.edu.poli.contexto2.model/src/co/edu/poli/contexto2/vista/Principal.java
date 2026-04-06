@@ -4,389 +4,343 @@ import co.edu.poli.contexto2.model.*;
 import co.edu.poli.contexto2.servicios.ImplementacionOperacionCRUD;
 import co.edu.poli.contexto2.servicios.OperacionArchivo;
 import co.edu.poli.contexto2.servicios.OperacionCRUD;
+import java.util.Scanner;
 
 /**
  * Clase principal de la aplicación. Contiene el punto de entrada {@code main}
- * y los métodos polimórficos de demostración del sistema de alimentos espaciales.
+ * y el menú interactivo por consola para gestionar alimentos espaciales.
  *
- * <p>Incluye demostración de:</p>
- * <ul>
- *   <li>Creación de objetos del modelo (Registro, Inventario, Capitan, Nave, Empresa)</li>
- *   <li>Atributo estático compartido ({@code contraseniaingreso})</li>
- *   <li>Sobreescritura y sobrecarga de métodos</li>
- *   <li>Arreglo polimórfico de tipo supersuperclase ({@link Alimento})</li>
- *   <li>Atributo final, método final y clase final</li>
- *   <li>Operaciones CRUD mediante {@link ImplementacionOperacionCRUD}</li>
- *   <li>Operaciones sobre archivo: serializar y deserializar</li>
- * </ul>
+ * <p>Permite ejecutar operaciones CRUD y de archivo mediante un menú
+ * numérico ingresado por el usuario desde la consola.</p>
  *
  * @author florez0309
+ * @since 2026
  * @version 1.0
  */
 public class Principal {
 
-    // ============================================
+    /** Implementación del gestor CRUD y de archivo. */
+    private static ImplementacionOperacionCRUD gestor = new ImplementacionOperacionCRUD();
+
+    /** Scanner para leer entrada del usuario por consola. */
+    private static Scanner sc = new Scanner(System.in);
+
+    /** Ruta donde se guarda el archivo de persistencia. */
+    private static final String PATH = "src/";
+
+    /** Nombre del archivo de persistencia (sin extensión). */
+    private static final String NOMBRE_ARCHIVO = "alimentos";
+
+    // ============================================================
     // MÉTODOS POLIMÓRFICOS
-    // ============================================
+    // ============================================================
 
     /**
      * MÉTODO POLIMÓRFICO 1: Recibe un parámetro de tipo supersuperclase (Alimento).
      *
-     * <p>Procesa cualquier tipo de {@link Alimento} de forma polimórfica,
-     * mostrando su tipo real, representación en texto, categoría y estado de caducidad.</p>
-     *
-     * @param alimento objeto de tipo {@link Alimento} (o cualquier subclase) a procesar
+     * @param alimento objeto de tipo {@link Alimento} a procesar
      */
     public static void procesarAlimento(Alimento alimento) {
-        System.out.println("  ┌─ [POLIMORFISMO] Procesando alimento:");
-        System.out.println("  │  Tipo: " + alimento.getClass().getSimpleName());
-        System.out.println("  │  " + alimento.toString());
-        System.out.println("  │  " + alimento.obtenerCategoria());
-        System.out.println("  │  Verificando caducidad...");
-        boolean caducado = alimento.verificarCaducidad("15/02/2025");
-        System.out.println("  └─ Estado: " + (caducado ? "CADUCADO" : "VIGENTE"));
-        System.out.println();
+        System.out.println("  Tipo real : " + alimento.getClass().getSimpleName());
+        System.out.println("  Detalle   : " + alimento.toString());
+        System.out.println("  " + alimento.obtenerCategoria());
+        boolean caducado = alimento.verificarCaducidad("2025-12-31");
+        System.out.println("  Estado    : " + (caducado ? "CADUCADO" : "VIGENTE"));
     }
 
     /**
      * MÉTODO POLIMÓRFICO 2: Retorna un objeto de tipo supersuperclase (Alimento).
      *
-     * <p>Crea y retorna una instancia concreta de {@link Alimento} según el tipo
-     * indicado. Permite demostrar el polimorfismo de retorno.</p>
-     *
-     * @param tipo     tipo de alimento a crear: {@code "deshidratado"}, {@code "enlatado"}
-     *                 o cualquier otro valor (genera un deshidratado por defecto)
-     * @param registro registro de misión que se asignará al alimento creado
-     * @return instancia de {@link Deshidratado} o {@link Enlatado} según el tipo indicado
+     * @param tipo     tipo de alimento: "deshidratado" o "enlatado"
+     * @param registro registro de misión asociado
+     * @return instancia de {@link Alimento} según el tipo indicado
      */
     public static Alimento crearAlimentoSegunTipo(String tipo, Registro registro) {
-        System.out.println("  [POLIMORFISMO] Creando alimento de tipo: " + tipo);
-
         if (tipo.equalsIgnoreCase("deshidratado")) {
-            return new Deshidratado("Seco", "Neutro", "31/12/2026", "DH999", "01/01/2025",
-                                   "Fábrica Espacial", "31/12/2026", registro, 730);
-        } else if (tipo.equalsIgnoreCase("enlatado")) {
-            return new Enlatado("Sellado", "Salado", "30/06/2027", "EN999", "01/01/2025",
-                               "Planta Industrial", "30/06/2027", registro, "Acero");
+            return new Deshidratado("Seco", "Neutro", "2026-12-31", "DH999",
+                    "2025-01-01", "Fábrica Espacial", "2026-12-31", registro, 730);
         } else {
-            return new Deshidratado("Empacado", "Dulce", "15/08/2026", "DH888", "01/01/2025",
-                                   "Planta Beta", "15/08/2026", registro, 365);
+            return new Enlatado("Sellado", "Salado", "2027-06-30", "EN999",
+                    "2025-01-01", "Planta Industrial", "2027-06-30", registro, "Acero");
         }
     }
 
+    // ============================================================
+    // MENÚ PRINCIPAL
+    // ============================================================
+
     /**
-     * Punto de entrada de la aplicación. Ejecuta la demostración completa del sistema.
+     * Punto de entrada de la aplicación. Muestra el menú interactivo
+     * y ejecuta la opción elegida por el usuario.
      *
      * @param args argumentos de línea de comandos (no utilizados)
      */
     public static void main(String[] args) {
+        int opcion;
+        do {
+            mostrarMenu();
+            opcion = leerEntero("  Seleccione una opcion: ");
+            System.out.println();
+            switch (opcion) {
+                case 1: crear();        break;
+                case 2: listarTodos();  break;
+                case 3: consultarUno(); break;
+                case 4: modificar();    break;
+                case 5: eliminar();     break;
+                case 6: guardar();      break;
+                case 7: cargar();       break;
+                case 0:
+                    System.out.println("=== Saliendo del sistema. Hasta luego! ===");
+                    break;
+                default:
+                    System.out.println("[!] Opcion no valida. Intente de nuevo.");
+            }
+            System.out.println();
+        } while (opcion != 0);
 
-        System.out.println("=================================================");
-        System.out.println("   SISTEMA DE GESTIÓN ESPACIAL - DEMO");
-        System.out.println("=================================================\n");
+        sc.close();
+    }
 
-        // ============================================
-        // Creación de objetos REGISTRO
-        // ============================================
-        System.out.println(">>> CREACIÓN DE OBJETOS TIPO REGISTRO <<<");
-        System.out.println("--------------------------------------------------");
+    // ============================================================
+    // OPCIONES DEL MENÚ
+    // ============================================================
 
-        Registro registro1 = new Registro(101, 20250215, "Marte", "Exploración Mineral", "Alimentos", "Nave-Alpha", "Cinturón de asteroides");
-        System.out.println("Registro 1 creado:");
-        System.out.println(registro1);
-        System.out.println();
+    /**
+     * Muestra el menú de opciones en consola.
+     */
+    private static void mostrarMenu() {
+        System.out.println("===========================================");
+        System.out.println("   SISTEMA DE ALIMENTOS ESPACIALES");
+        System.out.println("===========================================");
+        System.out.println("  1. Crear alimento");
+        System.out.println("  2. Listar todos los alimentos");
+        System.out.println("  3. Consultar un alimento");
+        System.out.println("  4. Modificar un alimento");
+        System.out.println("  5. Eliminar un alimento");
+        System.out.println("  6. Guardar en archivo");
+        System.out.println("  7. Cargar desde archivo");
+        System.out.println("  0. Salir");
+        System.out.println("===========================================");
+    }
 
-        Registro registro2 = new Registro(102, 20250220, "Luna", "Recolección de Muestras", "Herramientas", "Nave-Beta", "Mar de la Tranquilidad");
-        System.out.println("Registro 2 creado:");
-        System.out.println(registro2);
-        System.out.println();
+    /**
+     * Solicita al usuario los datos de un nuevo alimento y lo agrega al gestor.
+     */
+    private static void crear() {
+        System.out.println("--- CREAR ALIMENTO ---");
+        System.out.println("  Tipo de alimento:");
+        System.out.println("  1 = Deshidratado");
+        System.out.println("  2 = Enlatado");
+        int tipo = leerEntero("  Ingrese tipo: ");
 
-        Registro registro3 = new Registro(103, 20250225, "Júpiter", "Investigación Científica", "Alimentos y Equipos", "Nave-Gamma", "Europa");
-        System.out.println("Registro 3 creado:");
-        System.out.println(registro3);
-        System.out.println("\n");
+        System.out.print("  Estado: ");
+        String estado = sc.nextLine().trim();
 
-        // ============================================
-        // ATRIBUTO ESTÁTICO - contraseniaingreso
-        // ============================================
-        System.out.println(">>> ATRIBUTO ESTÁTICO (contraseniaingreso) <<<");
-        System.out.println("-------------------------------------------------------");
-        System.out.println("Valor inicial del atributo estático: " + Inventario.contraseniaingreso);
-        System.out.println();
+        System.out.print("  Sabor: ");
+        String sabor = sc.nextLine().trim();
 
-        Inventario inventario1 = new Inventario(201, "15/02/2025", "20/02/2025", "Alimentos", "SpaceCorp", registro1);
-        System.out.println("Inventario 1 creado - contraseniaingreso ahora es: " + Inventario.contraseniaingreso);
+        System.out.print("  Fecha de vencimiento (aaaa-mm-dd): ");
+        String fVenc = sc.nextLine().trim();
 
-        Inventario inventario2 = new Inventario(202, "16/02/2025", "21/02/2025", "Herramientas", "MarsIndustries", registro2);
-        System.out.println("Inventario 2 creado - contraseniaingreso ahora es: " + Inventario.contraseniaingreso);
+        System.out.print("  Codigo de barras: ");
+        String cod = sc.nextLine().trim();
 
-        Inventario inventario3 = new Inventario(203, "17/02/2025", "22/02/2025", "Equipos", "JupiterTech", registro3);
-        System.out.println("Inventario 3 creado - contraseniaingreso ahora es: " + Inventario.contraseniaingreso);
-        System.out.println();
+        System.out.print("  Fecha de fabricacion (aaaa-mm-dd): ");
+        String fFab = sc.nextLine().trim();
 
-        System.out.println(">>> MODIFICANDO el atributo estático a 1000 <<<");
-        Inventario.contraseniaingreso = 1000;
-        System.out.println();
+        System.out.print("  Lugar de fabricacion: ");
+        String lugar = sc.nextLine().trim();
 
-        System.out.println("EVIDENCIA: Todos los objetos comparten el mismo valor del atributo estático:");
-        System.out.println("inventario1.contraseniaingreso = " + Inventario.contraseniaingreso);
-        System.out.println("inventario2.contraseniaingreso = " + Inventario.contraseniaingreso);
-        System.out.println("inventario3.contraseniaingreso = " + Inventario.contraseniaingreso);
-        System.out.println("Clase.contraseniaingreso      = " + Inventario.contraseniaingreso);
-        System.out.println("\n");
+        System.out.print("  Fecha de caducidad (aaaa-mm-dd): ");
+        String fCad = sc.nextLine().trim();
 
-        // ============================================
-        // SOBREESCRITURA Y SOBRECARGA
-        // ============================================
-        System.out.println(">>> SOBREESCRITURA Y SOBRECARGA DE MÉTODOS <<<");
-        System.out.println("--------------------------------------------------------");
+        Registro reg = new Registro(1, 20250101, "Base Espacial",
+                "Mision Demo", "Alimentos", "Nave-Demo", "Orbita");
 
-        Capitan capitan1 = new Capitan("CAP-001", "Ana Rodriguez", 68.5, 1.72, "01/01/2020", "Activo", "15/05/1985");
+        Alimento nuevo = null;
 
-        Deshidratado alimento1 = new Deshidratado("Fresco", "Dulce", "01/03/2025", "7894561230", "10/01/2025", "Tierra", "01/03/2026", registro1, 365);
+        if (tipo == 1) {
+            int dias = leerEntero("  Cantidad maxima de dias de conservacion: ");
+            nuevo = new Deshidratado(estado, sabor, fVenc, cod,
+                    fFab, lugar, fCad, reg, dias);
 
-        System.out.println("\n--- DEMOSTRACIÓN DE SOBREESCRITURA ---");
-        boolean caducado = alimento1.verificarCaducidad("15/02/2025");
-        System.out.println("  Resultado: " + (caducado ? "Caducado" : "Vigente"));
-        System.out.println();
+        } else if (tipo == 2) {
+            System.out.print("  Material de la lata: ");
+            String mat = sc.nextLine().trim();
+            nuevo = new Enlatado(estado, sabor, fVenc, cod,
+                    fFab, lugar, fCad, reg, mat);
 
-        System.out.println("--- DEMOSTRACIÓN DE SOBRECARGA ---");
-        String resultado1 = alimento1.calcularconservacion("15/02/2025");
-        System.out.println("  [SOBRECARGA 1] " + resultado1);
-        System.out.println();
-
-        String resultado2 = alimento1.calcularconservacion("15/02/2025", "Refrigerado");
-        System.out.println("  [SOBRECARGA 2] " + resultado2);
-        System.out.println("\n");
-
-        // ============================================
-        // ARREGLO POLIMÓRFICO
-        // ============================================
-        System.out.println("╔═══════════════════════════════════════════════════════╗");
-        System.out.println("║  ARREGLO DE TIPO SUPERSUPERCLASE (Alimento)           ║");
-        System.out.println("╚═══════════════════════════════════════════════════════╝\n");
-
-        Alimento[] alimentosEspaciales = new Alimento[5];
-
-        alimentosEspaciales[0] = new Deshidratado("Empacado", "Neutro", "31/12/2025", "DH001", "01/01/2025", "Planta A", "31/12/2025", registro1, 365);
-        alimentosEspaciales[1] = new Enlatado("Sellado", "Salado", "30/06/2026", "EN002", "15/01/2025", "Planta B", "30/06/2026", registro2, "Aluminio");
-        alimentosEspaciales[2] = new Deshidratado("Seco", "Dulce", "15/08/2025", "DH003", "20/01/2025", "Planta C", "15/08/2025", registro3, 180);
-
-        System.out.println("Posiciones [3] y [4] = null (vacías)\n");
-
-        String fechaActual = "15/02/2025";
-        for (int i = 0; i < 3; i++) {
-            System.out.println("   Posición [" + i + "]: " + alimentosEspaciales[i].getClass().getSimpleName());
-            boolean estaCaducado = alimentosEspaciales[i].verificarCaducidad(fechaActual);
-            System.out.println("     Código de barras: " + alimentosEspaciales[i].getCodigodebarras());
-            System.out.println("     Fecha de caducidad: " + alimentosEspaciales[i].getFechacaducidad());
-            System.out.println("     Resultado: " + (estaCaducado ? "CADUCADO" : "VIGENTE"));
-            System.out.println("     Valor nutricional: " + alimentosEspaciales[i].calcularValorNutricional() + "\n");
+        } else {
+            System.out.println("[!] Tipo no valido.");
+            return;
         }
 
-        // ============================================
-        // POLIMORFISMO - métodos polimórficos
-        // ============================================
-        System.out.println("╔═══════════════════════════════════════════════════════╗");
-        System.out.println("║  MÉTODOS POLIMÓRFICOS                                 ║");
-        System.out.println("╚═══════════════════════════════════════════════════════╝\n");
+        gestor.crear(nuevo);
+        System.out.println("[OK] Creacion completada.");
+    }
 
-        System.out.println("--- Método polimórfico 1: procesarAlimento() ---");
-        procesarAlimento(alimentosEspaciales[0]);
-        procesarAlimento(alimentosEspaciales[1]);
+    /**
+     * Lista todos los alimentos almacenados en el gestor.
+     */
+    private static void listarTodos() {
+        System.out.println("--- LISTADO DE TODOS LOS ALIMENTOS ---");
+        Alimento[] lista = gestor.listar();
+        boolean hayAlguno = false;
 
-        System.out.println("--- Método polimórfico 2: crearAlimentoSegunTipo() ---");
-        Alimento polimorf1 = crearAlimentoSegunTipo("deshidratado", registro1);
-        System.out.println("  Creado: " + polimorf1.getClass().getSimpleName() + " | " + polimorf1);
-        Alimento polimorf2 = crearAlimentoSegunTipo("enlatado", registro2);
-        System.out.println("  Creado: " + polimorf2.getClass().getSimpleName() + " | " + polimorf2);
-        System.out.println();
-
-        // ============================================
-        // ATRIBUTO FINAL, MÉTODO FINAL, CLASE FINAL
-        // ============================================
-        System.out.println("╔═══════════════════════════════════════════════════════╗");
-        System.out.println("║  ATRIBUTO FINAL - MÉTODO FINAL - CLASE FINAL          ║");
-        System.out.println("╚═══════════════════════════════════════════════════════╝\n");
-
-        System.out.println("Atributo final CATEGORIA: " + alimentosEspaciales[0].CATEGORIA);
-        System.out.println("Método final obtenerCategoria(): " + alimentosEspaciales[0].obtenerCategoria());
-        System.out.println("Clase final: Enlatado.java declarada como 'public final class Enlatado'");
-        System.out.println();
-
-        // ============================================
-        // DEMO NAVE Y EMPRESA
-        // ============================================
-        Nave nave1 = new Nave("10/06/2018", "Carguero", "Estación Lunar", 50000.0, "Nave-Alpha", "NAVE-001", "Plateado", 150, 10000, 50, capitan1, inventario1);
-        System.out.println("Nave creada: " + nave1);
-
-        Empresa empresa1 = new Empresa("SpaceCorp", "John Smith", "Transporte espacial", 250, "logo.png", "EMP-001", "Marte-Ciudad Central", capitan1);
-        System.out.println("Empresa creada: " + empresa1);
-        System.out.println("¿Es empresa grande? " + empresa1.esempresagrande());
-        System.out.println();
-
-        // ============================================================
-        // OPERACIONES CRUD
-        // ============================================================
-        System.out.println("╔═══════════════════════════════════════════════════════╗");
-        System.out.println("║         OPERACIONES CRUD - ImplementacionOperacionCRUD║");
-        System.out.println("╚═══════════════════════════════════════════════════════╝\n");
-
-        // Crear instancia usando la interface como tipo (polimorfismo de interface)
-        OperacionCRUD crud = new ImplementacionOperacionCRUD();
-
-        // ── CREAR ──────────────────────────────────────────────────
-        System.out.println("─── CREAR ───────────────────────────────────────────────");
-
-        Alimento a1 = new Deshidratado("Fresco", "Dulce", "01/01/2027", "COD-001", "01/01/2025",
-                                       "Planta A", "01/01/2027", registro1, 400);
-        Alimento a2 = new Enlatado("Sellado", "Salado", "01/06/2027", "COD-002", "01/02/2025",
-                                   "Planta B", "01/06/2027", registro2, "Acero");
-        Alimento a3 = new Deshidratado("Seco", "Neutro", "01/09/2027", "COD-003", "01/03/2025",
-                                       "Planta C", "01/09/2027", registro3, 600);
-
-        crud.crear(a1); // Posición [0] — arreglo tamaño 2
-        crud.crear(a2); // Posición [1] — arreglo lleno tras esto
-        crud.crear(a3); // Expande a tamaño 4, inserta en [2]
-
-        System.out.println("\n  Intentando crear con codigodebarras repetido (COD-001):");
-        crud.crear(new Deshidratado("X", "X", "01/01/2028", "COD-001", "01/01/2025", "X", "01/01/2028", registro1, 100));
-
-        System.out.println("\n  Intentando crear objeto null:");
-        crud.crear(null);
-
-        // ── CONSULTAR ─────────────────────────────────────────────
-        System.out.println("\n─── CONSULTAR ───────────────────────────────────────────");
-
-        Alimento encontrado = crud.consultar("COD-002");
-        if (encontrado != null) {
-            System.out.println("  [CONSULTAR] Encontrado: " + encontrado);
-        }
-
-        Alimento noExiste = crud.consultar("COD-999");
-        if (noExiste == null) {
-            System.out.println("  [CONSULTAR] COD-999 no existe en el arreglo.");
-        }
-
-        crud.consultar("");
-
-        // ── MODIFICAR ─────────────────────────────────────────────
-        System.out.println("\n─── MODIFICAR ───────────────────────────────────────────");
-
-        Alimento aModificado = new Enlatado("Nuevo estado", "Dulce", "01/12/2028", "COD-002",
-                                            "01/02/2025", "Planta B", "01/12/2028", registro2, "Aluminio");
-        boolean modOk = crud.modificar("COD-002", aModificado);
-        System.out.println("  Resultado modificación: " + modOk);
-
-        Alimento verificacion = crud.consultar("COD-002");
-        System.out.println("  Estado después de modificar: " + (verificacion != null ? verificacion.getEstado() : "null"));
-
-        crud.modificar("COD-999", aModificado);
-        crud.modificar("COD-001", null);
-
-        // ── ELIMINAR ──────────────────────────────────────────────
-        System.out.println("\n─── ELIMINAR ────────────────────────────────────────────");
-
-        boolean elimOk = crud.eliminar("COD-003");
-        System.out.println("  Resultado eliminación COD-003: " + elimOk);
-
-        crud.eliminar("COD-999");
-        crud.eliminar("");
-
-        // ── LISTAR ────────────────────────────────────────────────
-        System.out.println("\n─── LISTAR ──────────────────────────────────────────────");
-        Alimento[] lista = crud.listar();
-        System.out.println("  Capacidad del arreglo: " + lista.length);
         for (int i = 0; i < lista.length; i++) {
             if (lista[i] != null) {
-                System.out.println("  [" + i + "] " + lista[i].getClass().getSimpleName()
-                        + " | código: " + lista[i].getCodigodebarras()
-                        + " | valor nutricional: " + lista[i].calcularValorNutricional());
-            } else {
-                System.out.println("  [" + i + "] null");
+                hayAlguno = true;
+                System.out.println("  [" + i + "] "
+                        + lista[i].getClass().getSimpleName()
+                        + " | Codigo: "     + lista[i].getCodigodebarras()
+                        + " | Estado: "     + lista[i].getEstado()
+                        + " | Caducidad: "  + lista[i].getFechacaducidad()
+                        + " | Val.Nut: "    + lista[i].calcularValorNutricional());
             }
         }
 
-        // ============================================================
-        // OPERACIONES SOBRE ARCHIVO (serializar / deserializar)
-        // ============================================================
-        System.out.println("\n╔═══════════════════════════════════════════════════════╗");
-        System.out.println("║         OPERACIONES SOBRE ARCHIVO                     ║");
-        System.out.println("╚═══════════════════════════════════════════════════════╝\n");
+        if (!hayAlguno) {
+            System.out.println("  [!] No hay alimentos registrados.");
+        }
 
-        // Usar la interfaz OperacionArchivo como tipo (polimorfismo de interfaz)
-        OperacionArchivo archivo = new ImplementacionOperacionCRUD();
+        System.out.println("  Capacidad: " + lista.length
+                + " | Registrados: " + gestor.getCantidad());
+    }
 
-        // ── SERIALIZAR ────────────────────────────────────────────
-        System.out.println("─── SERIALIZAR ──────────────────────────────────────────");
-        String msgSer = archivo.serializar(crud.listar(), "src/", "alimentos");
-        System.out.println("  " + msgSer);
+    /**
+     * Solicita un código de barras y muestra el alimento correspondiente.
+     */
+    private static void consultarUno() {
+        System.out.println("--- CONSULTAR ALIMENTO ---");
+        System.out.print("  Codigo de barras: ");
+        String cod = sc.nextLine().trim();
 
-        // Intentar serializar con arreglo null (validación)
-        System.out.println("\n  Intentando serializar arreglo null:");
-        String msgNull = archivo.serializar(null, "src/", "alimentos");
-        System.out.println("  " + msgNull);
+        Alimento found = gestor.consultar(cod);
+        if (found != null) {
+            System.out.println("  Tipo             : " + found.getClass().getSimpleName());
+            System.out.println("  " + found.toString());
+            System.out.println("  Valor nutricional: " + found.calcularValorNutricional());
+            System.out.println("  " + found.obtenerCategoria());
+        } else {
+            System.out.println("  [!] No se encontro alimento con codigo '" + cod + "'.");
+        }
+    }
 
-        // ── DESERIALIZAR ──────────────────────────────────────────
-        System.out.println("\n─── DESERIALIZAR ────────────────────────────────────────");
-        Alimento[] cargados = archivo.deserializar("src/", "alimentos");
+    /**
+     * Solicita un código de barras y los nuevos datos para modificar el alimento.
+     */
+    private static void modificar() {
+        System.out.println("--- MODIFICAR ALIMENTO ---");
+        System.out.print("  Codigo de barras a modificar: ");
+        String cod = sc.nextLine().trim();
+
+        Alimento actual = gestor.consultar(cod);
+        if (actual == null) {
+            System.out.println("  [!] No se encontro alimento con codigo '" + cod + "'.");
+            return;
+        }
+
+        System.out.println("  Alimento actual  : " + actual);
+        System.out.println("  Tipo             : " + actual.getClass().getSimpleName());
+        System.out.println("  Ingrese los nuevos datos:");
+
+        System.out.print("  Nuevo estado: ");
+        String estado = sc.nextLine().trim();
+
+        System.out.print("  Nuevo sabor: ");
+        String sabor = sc.nextLine().trim();
+
+        System.out.print("  Nueva fecha de vencimiento (aaaa-mm-dd): ");
+        String fVenc = sc.nextLine().trim();
+
+        System.out.print("  Nueva fecha de fabricacion (aaaa-mm-dd): ");
+        String fFab = sc.nextLine().trim();
+
+        System.out.print("  Nuevo lugar de fabricacion: ");
+        String lugar = sc.nextLine().trim();
+
+        System.out.print("  Nueva fecha de caducidad (aaaa-mm-dd): ");
+        String fCad = sc.nextLine().trim();
+
+        Registro reg = actual.getRegistro();
+        Alimento modificado = null;
+
+        if (actual instanceof Deshidratado) {
+            int dias = leerEntero("  Nueva cantidad maxima de dias: ");
+            modificado = new Deshidratado(estado, sabor, fVenc, cod,
+                    fFab, lugar, fCad, reg, dias);
+
+        } else if (actual instanceof Enlatado) {
+            System.out.print("  Nuevo material de la lata: ");
+            String mat = sc.nextLine().trim();
+            modificado = new Enlatado(estado, sabor, fVenc, cod,
+                    fFab, lugar, fCad, reg, mat);
+        }
+
+        boolean ok = gestor.modificar(cod, modificado);
+        System.out.println("[OK] Modificacion exitosa: " + ok);
+    }
+
+    /**
+     * Solicita un código de barras y elimina el alimento correspondiente.
+     */
+    private static void eliminar() {
+        System.out.println("--- ELIMINAR ALIMENTO ---");
+        System.out.print("  Codigo de barras a eliminar: ");
+        String cod = sc.nextLine().trim();
+
+        boolean ok = gestor.eliminar(cod);
+        System.out.println("[OK] Eliminacion: " + (ok ? "exitosa" : "no encontrado"));
+    }
+
+    /**
+     * Serializa el estado actual del gestor en el archivo de persistencia.
+     */
+    private static void guardar() {
+        System.out.println("--- GUARDAR EN ARCHIVO ---");
+        String msg = gestor.serializar(gestor.listar(), PATH, NOMBRE_ARCHIVO);
+        System.out.println("  " + msg);
+    }
+
+    /**
+     * Deserializa el archivo de persistencia y carga los alimentos al gestor.
+     */
+    private static void cargar() {
+        System.out.println("--- CARGAR DESDE ARCHIVO ---");
+        Alimento[] cargados = gestor.deserializar(PATH, NOMBRE_ARCHIVO);
+
         if (cargados != null) {
-            System.out.println("  Alimentos cargados desde archivo:");
-            for (int i = 0; i < cargados.length; i++) {
-                if (cargados[i] != null) {
-                    System.out.println("  [" + i + "] " + cargados[i].getClass().getSimpleName()
-                            + " | código: " + cargados[i].getCodigodebarras()
-                            + " | valor nutricional: " + cargados[i].calcularValorNutricional());
-                }
+            gestor = new ImplementacionOperacionCRUD();
+            for (Alimento a : cargados) {
+                if (a != null) gestor.crear(a);
+            }
+            System.out.println("[OK] Archivo cargado. Alimentos disponibles: "
+                    + gestor.getCantidad());
+        } else {
+            System.out.println("[!] No se encontro archivo o esta vacio.");
+        }
+    }
+
+    // ============================================================
+    // UTILIDAD
+    // ============================================================
+
+    /**
+     * Lee un número entero desde la consola, repitiendo la solicitud
+     * si el usuario ingresa un valor no numérico.
+     *
+     * @param mensaje texto que se muestra al usuario antes de leer
+     * @return entero ingresado por el usuario
+     */
+    private static int leerEntero(String mensaje) {
+        while (true) {
+            System.out.print(mensaje);
+            String linea = sc.nextLine().trim();
+            try {
+                return Integer.parseInt(linea);
+            } catch (NumberFormatException e) {
+                System.out.println("[!] Ingrese un numero valido.");
             }
         }
-
-        // Intentar deserializar un archivo que no existe
-        System.out.println("\n  Intentando deserializar archivo inexistente:");
-        Alimento[] noArchivo = archivo.deserializar("src/", "noexiste");
-        if (noArchivo == null) {
-            System.out.println("  Resultado: null (archivo no encontrado)");
-        }
-
-        System.out.println("\n=================================================");
-        System.out.println("   FIN DE LA DEMOSTRACIÓN");
-        System.out.println("=================================================");
-
-        /*
-         * ═══════════════════════════════════════════════════════════════
-         * COMENTARIOS SOBRE UBICACIÓN DE CAMBIOS
-         * ═══════════════════════════════════════════════════════════════
-         *
-         * 1. ATRIBUTO FINAL (no se puede cambiar):
-         *    Archivo: Alimento.java
-         *    Código: public final String CATEGORIA = "Alimento Espacial";
-         *
-         * 2. MÉTODO FINAL (no se puede sobreescribir):
-         *    Archivo: Alimento.java
-         *    Código: public final String obtenerCategoria()
-         *
-         * 3. CLASE FINAL (no se puede heredar):
-         *    Archivo: Enlatado.java
-         *    Código: public final class Enlatado extends Alimento
-         *
-         * 4. MÉTODO ABSTRACTO NUEVO (semana actual):
-         *    Archivo: Alimento.java
-         *    Código: public abstract double calcularValorNutricional();
-         *    Implementado en: Deshidratado, Enlatado, Deshidratadoespecial
-         *
-         * 5. INTERFACE OperacionCRUD:
-         *    Paquete: co.edu.poli.contexto2.servicios
-         *    Métodos: crear, consultar, modificar, eliminar, listar
-         *
-         * 6. CLASE ImplementacionOperacionCRUD:
-         *    Paquete: co.edu.poli.contexto2.servicios
-         *    Implementa OperacionCRUD y OperacionArchivo con arreglo dinámico
-         *
-         * 7. INTERFACE OperacionArchivo:
-         *    Paquete: co.edu.poli.contexto2.servicios
-         *    Métodos: serializar(Alimento[], String, String)
-         *             deserializar(String, String)
-         * ═══════════════════════════════════════════════════════════════
-         */
     }
 }

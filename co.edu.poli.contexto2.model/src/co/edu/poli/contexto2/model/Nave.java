@@ -7,6 +7,7 @@ package co.edu.poli.contexto2.model;
  * Permite calcular el consumo de combustible según la distancia recorrida.</p>
  *
  * @author florez0309
+ * @since 2026
  * @version 1.0
  */
 public class Nave {
