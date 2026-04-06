@@ -2,8 +2,27 @@ package co.edu.poli.contexto2.vista;
 
 import co.edu.poli.contexto2.model.*;
 import co.edu.poli.contexto2.servicios.ImplementacionOperacionCRUD;
+import co.edu.poli.contexto2.servicios.OperacionArchivo;
 import co.edu.poli.contexto2.servicios.OperacionCRUD;
 
+/**
+ * Clase principal de la aplicación. Contiene el punto de entrada {@code main}
+ * y los métodos polimórficos de demostración del sistema de alimentos espaciales.
+ *
+ * <p>Incluye demostración de:</p>
+ * <ul>
+ *   <li>Creación de objetos del modelo (Registro, Inventario, Capitan, Nave, Empresa)</li>
+ *   <li>Atributo estático compartido ({@code contraseniaingreso})</li>
+ *   <li>Sobreescritura y sobrecarga de métodos</li>
+ *   <li>Arreglo polimórfico de tipo supersuperclase ({@link Alimento})</li>
+ *   <li>Atributo final, método final y clase final</li>
+ *   <li>Operaciones CRUD mediante {@link ImplementacionOperacionCRUD}</li>
+ *   <li>Operaciones sobre archivo: serializar y deserializar</li>
+ * </ul>
+ *
+ * @author florez0309
+ * @version 1.0
+ */
 public class Principal {
 
     // ============================================
@@ -11,7 +30,12 @@ public class Principal {
     // ============================================
 
     /**
-     * MÉTODO POLIMÓRFICO 1: Recibe un parámetro de tipo supersuperclase (Alimento)
+     * MÉTODO POLIMÓRFICO 1: Recibe un parámetro de tipo supersuperclase (Alimento).
+     *
+     * <p>Procesa cualquier tipo de {@link Alimento} de forma polimórfica,
+     * mostrando su tipo real, representación en texto, categoría y estado de caducidad.</p>
+     *
+     * @param alimento objeto de tipo {@link Alimento} (o cualquier subclase) a procesar
      */
     public static void procesarAlimento(Alimento alimento) {
         System.out.println("  ┌─ [POLIMORFISMO] Procesando alimento:");
@@ -25,7 +49,15 @@ public class Principal {
     }
 
     /**
-     * MÉTODO POLIMÓRFICO 2: Retorna un tipo supersuperclase (Alimento)
+     * MÉTODO POLIMÓRFICO 2: Retorna un objeto de tipo supersuperclase (Alimento).
+     *
+     * <p>Crea y retorna una instancia concreta de {@link Alimento} según el tipo
+     * indicado. Permite demostrar el polimorfismo de retorno.</p>
+     *
+     * @param tipo     tipo de alimento a crear: {@code "deshidratado"}, {@code "enlatado"}
+     *                 o cualquier otro valor (genera un deshidratado por defecto)
+     * @param registro registro de misión que se asignará al alimento creado
+     * @return instancia de {@link Deshidratado} o {@link Enlatado} según el tipo indicado
      */
     public static Alimento crearAlimentoSegunTipo(String tipo, Registro registro) {
         System.out.println("  [POLIMORFISMO] Creando alimento de tipo: " + tipo);
@@ -42,6 +74,11 @@ public class Principal {
         }
     }
 
+    /**
+     * Punto de entrada de la aplicación. Ejecuta la demostración completa del sistema.
+     *
+     * @param args argumentos de línea de comandos (no utilizados)
+     */
     public static void main(String[] args) {
 
         System.out.println("=================================================");
@@ -148,29 +185,28 @@ public class Principal {
         }
 
         // ============================================
-        // MÉTODOS POLIMÓRFICOS
+        // POLIMORFISMO - métodos polimórficos
         // ============================================
         System.out.println("╔═══════════════════════════════════════════════════════╗");
-        System.out.println("║       MÉTODOS POLIMÓRFICOS                            ║");
+        System.out.println("║  MÉTODOS POLIMÓRFICOS                                 ║");
         System.out.println("╚═══════════════════════════════════════════════════════╝\n");
 
+        System.out.println("--- Método polimórfico 1: procesarAlimento() ---");
         procesarAlimento(alimentosEspaciales[0]);
         procesarAlimento(alimentosEspaciales[1]);
-        procesarAlimento(alimentosEspaciales[2]);
 
-        Alimento nuevoAlimento1 = crearAlimentoSegunTipo("deshidratado", registro1);
-        System.out.println("  Objeto retornado: " + nuevoAlimento1.getClass().getSimpleName());
-        System.out.println("  " + nuevoAlimento1);
-
-        Alimento nuevoAlimento2 = crearAlimentoSegunTipo("enlatado", registro2);
-        System.out.println("  Objeto retornado: " + nuevoAlimento2.getClass().getSimpleName());
-        System.out.println("  " + nuevoAlimento2);
+        System.out.println("--- Método polimórfico 2: crearAlimentoSegunTipo() ---");
+        Alimento polimorf1 = crearAlimentoSegunTipo("deshidratado", registro1);
+        System.out.println("  Creado: " + polimorf1.getClass().getSimpleName() + " | " + polimorf1);
+        Alimento polimorf2 = crearAlimentoSegunTipo("enlatado", registro2);
+        System.out.println("  Creado: " + polimorf2.getClass().getSimpleName() + " | " + polimorf2);
+        System.out.println();
 
         // ============================================
-        // PUNTO 3: FINAL
+        // ATRIBUTO FINAL, MÉTODO FINAL, CLASE FINAL
         // ============================================
         System.out.println("╔═══════════════════════════════════════════════════════╗");
-        System.out.println("║  ATRIBUTO FINAL, MÉTODO FINAL Y CLASE FINAL           ║");
+        System.out.println("║  ATRIBUTO FINAL - MÉTODO FINAL - CLASE FINAL          ║");
         System.out.println("╚═══════════════════════════════════════════════════════╝\n");
 
         System.out.println("Atributo final CATEGORIA: " + alimentosEspaciales[0].CATEGORIA);
@@ -190,7 +226,7 @@ public class Principal {
         System.out.println();
 
         // ============================================================
-        // PUNTO NUEVO: PRUEBA DE OPERACIONES CRUD
+        // OPERACIONES CRUD
         // ============================================================
         System.out.println("╔═══════════════════════════════════════════════════════╗");
         System.out.println("║         OPERACIONES CRUD - ImplementacionOperacionCRUD║");
@@ -213,11 +249,9 @@ public class Principal {
         crud.crear(a2); // Posición [1] — arreglo lleno tras esto
         crud.crear(a3); // Expande a tamaño 4, inserta en [2]
 
-        // Intento de crear con código repetido (validación)
         System.out.println("\n  Intentando crear con codigodebarras repetido (COD-001):");
         crud.crear(new Deshidratado("X", "X", "01/01/2028", "COD-001", "01/01/2025", "X", "01/01/2028", registro1, 100));
 
-        // Intento de crear null (validación)
         System.out.println("\n  Intentando crear objeto null:");
         crud.crear(null);
 
@@ -229,13 +263,11 @@ public class Principal {
             System.out.println("  [CONSULTAR] Encontrado: " + encontrado);
         }
 
-        // Consultar uno que no existe (validación)
         Alimento noExiste = crud.consultar("COD-999");
         if (noExiste == null) {
             System.out.println("  [CONSULTAR] COD-999 no existe en el arreglo.");
         }
 
-        // Consultar con código vacío (validación)
         crud.consultar("");
 
         // ── MODIFICAR ─────────────────────────────────────────────
@@ -246,14 +278,10 @@ public class Principal {
         boolean modOk = crud.modificar("COD-002", aModificado);
         System.out.println("  Resultado modificación: " + modOk);
 
-        // Verificar que el cambio quedó
         Alimento verificacion = crud.consultar("COD-002");
         System.out.println("  Estado después de modificar: " + (verificacion != null ? verificacion.getEstado() : "null"));
 
-        // Modificar uno que no existe (validación)
         crud.modificar("COD-999", aModificado);
-
-        // Modificar con alimento null (validación)
         crud.modificar("COD-001", null);
 
         // ── ELIMINAR ──────────────────────────────────────────────
@@ -262,10 +290,7 @@ public class Principal {
         boolean elimOk = crud.eliminar("COD-003");
         System.out.println("  Resultado eliminación COD-003: " + elimOk);
 
-        // Eliminar uno que no existe (validación)
         crud.eliminar("COD-999");
-
-        // Eliminar con código vacío (validación)
         crud.eliminar("");
 
         // ── LISTAR ────────────────────────────────────────────────
@@ -280,6 +305,47 @@ public class Principal {
             } else {
                 System.out.println("  [" + i + "] null");
             }
+        }
+
+        // ============================================================
+        // OPERACIONES SOBRE ARCHIVO (serializar / deserializar)
+        // ============================================================
+        System.out.println("\n╔═══════════════════════════════════════════════════════╗");
+        System.out.println("║         OPERACIONES SOBRE ARCHIVO                     ║");
+        System.out.println("╚═══════════════════════════════════════════════════════╝\n");
+
+        // Usar la interfaz OperacionArchivo como tipo (polimorfismo de interfaz)
+        OperacionArchivo archivo = new ImplementacionOperacionCRUD();
+
+        // ── SERIALIZAR ────────────────────────────────────────────
+        System.out.println("─── SERIALIZAR ──────────────────────────────────────────");
+        String msgSer = archivo.serializar(crud.listar(), "src/", "alimentos");
+        System.out.println("  " + msgSer);
+
+        // Intentar serializar con arreglo null (validación)
+        System.out.println("\n  Intentando serializar arreglo null:");
+        String msgNull = archivo.serializar(null, "src/", "alimentos");
+        System.out.println("  " + msgNull);
+
+        // ── DESERIALIZAR ──────────────────────────────────────────
+        System.out.println("\n─── DESERIALIZAR ────────────────────────────────────────");
+        Alimento[] cargados = archivo.deserializar("src/", "alimentos");
+        if (cargados != null) {
+            System.out.println("  Alimentos cargados desde archivo:");
+            for (int i = 0; i < cargados.length; i++) {
+                if (cargados[i] != null) {
+                    System.out.println("  [" + i + "] " + cargados[i].getClass().getSimpleName()
+                            + " | código: " + cargados[i].getCodigodebarras()
+                            + " | valor nutricional: " + cargados[i].calcularValorNutricional());
+                }
+            }
+        }
+
+        // Intentar deserializar un archivo que no existe
+        System.out.println("\n  Intentando deserializar archivo inexistente:");
+        Alimento[] noArchivo = archivo.deserializar("src/", "noexiste");
+        if (noArchivo == null) {
+            System.out.println("  Resultado: null (archivo no encontrado)");
         }
 
         System.out.println("\n=================================================");
@@ -314,7 +380,12 @@ public class Principal {
          *
          * 6. CLASE ImplementacionOperacionCRUD:
          *    Paquete: co.edu.poli.contexto2.servicios
-         *    Implementa OperacionCRUD con arreglo dinámico (inicia en tamaño 2)
+         *    Implementa OperacionCRUD y OperacionArchivo con arreglo dinámico
+         *
+         * 7. INTERFACE OperacionArchivo:
+         *    Paquete: co.edu.poli.contexto2.servicios
+         *    Métodos: serializar(Alimento[], String, String)
+         *             deserializar(String, String)
          * ═══════════════════════════════════════════════════════════════
          */
     }
